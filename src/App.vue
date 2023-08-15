@@ -13,6 +13,7 @@ import HelloWorld from './components/HelloWorld.vue'
       <nav>
         <RouterLink to="/temp">体温</RouterLink>
         <RouterLink to="/poo">お腹の調子</RouterLink>
+        <RouterLink to="/list">一覧表示</RouterLink>
       </nav>
     </div>
   </header>
