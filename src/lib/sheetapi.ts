@@ -19,9 +19,21 @@ type getParamType = {
     "page": number,
     "count": number
 }
-export const getPoo = async(page: number, count: number) => {
+export const getPoo = async (page: number, count: number) => {
     const json: getParamType = { "type": "poo", "page": page, "count": count }
-    const res =  await sendGetRequest(json)
+    const res = await sendGetRequest(json) as getPooResType
+    return res
+}
+
+export const getTemp = async (page: number, count: number) => {
+    const json: getParamType = { "type": "temp", "page": page, "count": count }
+    const res = await sendGetRequest(json) as getTempResType
+    return res
+}
+
+export const getPooCnt = async (page: number, count: number) => {
+    const json: getParamType = { "type": "pooCnt", "page": page, "count": count }
+    const res = await sendGetRequest(json) as getPooCntResType
     return res
 }
 
@@ -54,18 +66,43 @@ const post = (json: string) => {
     console.log(json)
 }
 
-type getResType = {
-    "data":[{
-        "date": string,
-        "poo": string,
-        "blood": string,
-        "drainage": string,
-        "notes": string,
-    }]
+type pooResType = {
+    "date": string,
+    "poo": string,
+    "blood": string,
+    "drainage": string,
+    "notes": string,
+}
+
+type tempResType = {
+    "date": string,
+    "temp": string
+}
+
+type pooCntResType = {
+    "date": string,
+    "count": string
+}
+
+export interface getResType {
+    "page": string
+    "count": string
+    "allCount": string
+    "data": pooResType[] | tempResType[] | pooCntResType[]
+}
+
+export interface getPooResType extends getResType {
+    "data": pooResType[]
+}
+export interface getTempResType extends getResType {
+    "data": tempResType[]
+}
+export interface getPooCntResType extends getResType {
+    "data": pooCntResType[]
 }
 
 const sendGetRequest = (json: getParamType) => {
-    const promise:Promise<getResType> = new Promise((resolve, reject) => {
+    const promise: Promise<getResType> = new Promise((resolve, reject) => {
         //データを送信
         const xhr = new XMLHttpRequest()       //インスタンス作成
         xhr.onload = function () {        //レスポンスを受け取った時の処理（非同期）
