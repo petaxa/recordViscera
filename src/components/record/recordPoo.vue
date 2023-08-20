@@ -11,10 +11,23 @@ const drainage = ref('')
 // 備考
 const notes = ref('')
 
-const submit = () => {
-    const today = new Date()
+// ボタンが活性化しているかどうか
+const isEnabled = ref(true)
+
+const submit = async() => {
+    // 連打防止のためにボタンを非活性
+    isEnabled.value = false
+
     // APIを実行
-    sendPoo(today, poo.value, blood.value, drainage.value, notes.value)
+    const today = new Date()
+    const res  = await sendPoo(today, poo.value, blood.value, drainage.value, notes.value)
+
+    // 結果をアラート
+    // ※もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。
+    alert(JSON.stringify(res))
+    // ボタンを活性化
+    isEnabled.value = true
+
 }
 </script>
 
@@ -35,5 +48,5 @@ const submit = () => {
         <label for="notes">備考</label>
         <input type="text" name="notes" v-model="notes">
     </div>
-    <button class="submitBtn" @click="submit">登録</button>
+    <button class="submitBtn" @click="submit" :disabled="!isEnabled">登録</button>
 </template>
