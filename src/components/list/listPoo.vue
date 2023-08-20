@@ -16,8 +16,8 @@ const updateCurrentPage = (newPage: number) => {
     page.value = newPage
 }
 
-// 返ってきたデータ
-const res: Ref<getPooResType> = ref({
+// default data
+const defaultData = {
     "page": "",
     "count": "",
     "allCount": "",
@@ -28,10 +28,17 @@ const res: Ref<getPooResType> = ref({
         "drainage": "",
         "notes": "",
     }]
-})
+}
+
+// 返ってきたデータ
+const res: Ref<getPooResType> = ref(defaultData)
 
 // 最大ページ
 const maxPage = ref(0)
+// 現在のページかどうか
+const isCurrentPage = (n: number) => {
+    return n === page.value
+}
 
 /**
  * スプレッドシートからのデータ取得
@@ -49,8 +56,10 @@ const getPooWork = async () => {
  * NOTE: ページ遷移のたびに同じの読み込むのやだなぁ。どうにかできないかなあ。最悪localhostかなぁ。
  */
 watch(page, async () => {
+    res.value = defaultData
     await getPooWork()
-    maxPage.value = Math.trunc(Number(res.value.allCount)/Number(res.value.count))
+    // NOTE: これも共通処理だよね。
+    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
 }, { immediate: true })
 </script>
 <template>
@@ -74,9 +83,14 @@ watch(page, async () => {
             </tr>
         </tbody>
     </table>
-    <button @click="updateCurrentPage(page - 1)">&lt;</button>
-    <button v-for="n of maxPage" :key="n" @click="updateCurrentPage(n)">{{ n }}</button>
-    <button @click="updateCurrentPage(page + 1)">&gt;</button>
+
+    <!-- NOTE: コンポーネント化できないかなぁ。pageをwatchして、変化させているのがネック -->
+    <!-- NOTE: ボタンの形、色を上手くいじりたい。ダークモード対応の部分を読み解かないと。 -->
+    <div class="buttonArea">
+        <button v-if="page !== 1" @click="updateCurrentPage(page - 1)">&lt;</button>
+        <button v-for="n of maxPage" :key="n" @click="updateCurrentPage(n)" :class="{currentPage: isCurrentPage(n)}">{{ n }}</button>
+        <button v-if="page !== maxPage" @click="updateCurrentPage(page + 1)">&gt;</button>
+    </div>
 </template>
 
 <style scoped>
@@ -86,19 +100,32 @@ table {
     font-size: 0.6em;
 }
 
+.buttonArea {
+    text-align: center;
+}
+
+/* 現在ページのボタン */
+.currentPage {
+    background-color: hsla(160, 100%, 37%, 1);
+}
+
 /* セルの個別設定 */
 #date {
     width: 30%;
 }
+
 #poo {
     width: 20%;
 }
+
 #blood {
     width: 10%;
 }
+
 #drainage {
     width: 10%;
 }
+
 #notes {
     width: 20%;
 }

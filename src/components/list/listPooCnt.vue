@@ -12,12 +12,12 @@ const page = ref(1)
 /**
  * ページを更新
  */
- const updateCurrentPage = (newPage: number) => {
+const updateCurrentPage = (newPage: number) => {
     page.value = newPage
 }
 
-// 返ってきたデータ
-const res: Ref<getPooCntResType> = ref({
+// default data
+const defaultData = {
     "page": "",
     "count": "",
     "allCount": "",
@@ -25,10 +25,17 @@ const res: Ref<getPooCntResType> = ref({
         "date": "",
         "count": ""
     }]
-})
+}
+
+// 返ってきたデータ
+const res: Ref<getPooCntResType> = ref(defaultData)
 
 // 最大ページ
 const maxPage = ref(0)
+// 現在のページかどうか
+const isCurrentPage = (n: number) => {
+    return n === page.value
+}
 
 /**
  * スプレッドシートからのデータ取得
@@ -36,6 +43,7 @@ const maxPage = ref(0)
  * NOTE: ちょっとさすがに関数名を改善したい
  */
 const getPooCntWork = async () => {
+    res.value = defaultData
     const r = await getPooCnt(page.value, COUNT)
     res.value = r;
     console.log(r)
@@ -46,16 +54,18 @@ const getPooCntWork = async () => {
  * NOTE: ページ遷移のたびに同じの読み込むのやだなぁ。どうにかできないかなあ。最悪localhostかなぁ。
  */
 watch(page, async () => {
+    res.value = defaultData
     await getPooCntWork()
-    maxPage.value = Math.trunc(Number(res.value.allCount)/Number(res.value.count))
+    // NOTE: これも共通処理だよね。
+    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
 }, { immediate: true })
 </script>
 <template>
     <table>
         <thead>
             <tr>
-                <th>日付</th>
-                <th>回数</th>
+                <th id="date">日付</th>
+                <th id="count">回数</th>
             </tr>
         </thead>
         <tbody>
@@ -65,7 +75,37 @@ watch(page, async () => {
             </tr>
         </tbody>
     </table>
-    <button @click="updateCurrentPage(page - 1)">&lt;</button>
-    <button v-for="n of maxPage" :key="n" @click="updateCurrentPage(n)">{{ n }}</button>
-    <button @click="updateCurrentPage(page + 1)">&gt;</button>
+
+    <!-- NOTE: コンポーネント化できないかなぁ。pageをwatchして、変化させているのがネック -->
+    <div class="buttonArea">
+        <button v-if="page !== 1" @click="updateCurrentPage(page - 1)">&lt;</button>
+        <button v-for="n of maxPage" :key="n" @click="updateCurrentPage(n)" :class="{currentPage: isCurrentPage(n)}">{{ n }}</button>
+        <button v-if="page !== maxPage" @click="updateCurrentPage(page + 1)">&gt;</button>
+    </div>
 </template>
+
+<style scoped>
+table {
+    width: 100%;
+    text-align: center;
+    font-size: 0.6em;
+}
+
+table tr {
+    height: 2.5em;
+}
+
+.buttonArea {
+    text-align: center;
+}
+
+/* 現在ページのボタン */
+.currentPage {
+    background-color: hsla(160, 100%, 37%, 1);
+}
+
+/* セルの個別設定 */
+#date {
+    width: 30%;
+}
+</style>
