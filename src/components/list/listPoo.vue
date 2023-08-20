@@ -3,6 +3,7 @@ import { getPoo } from '@/lib/sheetapi'
 import { ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import type { getPooResType } from '@/lib/sheetapi'
+import PageNationButton from './pageNationButton.vue'
 
 // 1ページのデータ表示数
 const COUNT = 20;
@@ -35,10 +36,6 @@ const res: Ref<getPooResType> = ref(defaultData)
 
 // 最大ページ
 const maxPage = ref(0)
-// 現在のページかどうか
-const isCurrentPage = (n: number) => {
-    return n === page.value
-}
 
 /**
  * スプレッドシートからのデータ取得
@@ -84,13 +81,7 @@ watch(page, async () => {
         </tbody>
     </table>
 
-    <!-- NOTE: コンポーネント化できないかなぁ。pageをwatchして、変化させているのがネック -->
-    <!-- NOTE: ボタンの形、色を上手くいじりたい。ダークモード対応の部分を読み解かないと。 -->
-    <div class="buttonArea">
-        <button v-if="page !== 1" @click="updateCurrentPage(page - 1)">&lt;</button>
-        <button v-for="n of maxPage" :key="n" @click="updateCurrentPage(n)" :class="{currentPage: isCurrentPage(n)}">{{ n }}</button>
-        <button v-if="page !== maxPage" @click="updateCurrentPage(page + 1)">&gt;</button>
-    </div>
+    <PageNationButton :page="page" :max-page="maxPage" @updateCurrentPage="(newPage) => {updateCurrentPage(newPage)}"/>
 </template>
 
 <style scoped>
@@ -102,11 +93,6 @@ table {
 
 .buttonArea {
     text-align: center;
-}
-
-/* 現在ページのボタン */
-.currentPage {
-    background-color: hsla(160, 100%, 37%, 1);
 }
 
 /* セルの個別設定 */
