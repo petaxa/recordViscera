@@ -1,5 +1,3 @@
-import type { LinksType } from '@/components/headerLink.vue'
-
 // リンク指定の型
 export type LinksType = {
     path: string,

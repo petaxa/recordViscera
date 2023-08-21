@@ -1,5 +1,4 @@
 /* 共通のCSS */
-/* NOTE: どうにかしてrecordPoo, recordTempだけでしか使えないようにしたい。二回書くのは論外。うーん。 */
 .inputForm {
     margin: 10px 0;
     width: 100%;
