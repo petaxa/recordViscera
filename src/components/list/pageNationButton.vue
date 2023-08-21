@@ -23,6 +23,6 @@ const isCurrentPage = (n: number, page: number) => {
 <style scoped>
 /* 現在ページのボタン */
 .currentPage {
-    background-color: hsla(160, 100%, 37%, 1);
+    color: var(--color-text);
 }
 </style>
