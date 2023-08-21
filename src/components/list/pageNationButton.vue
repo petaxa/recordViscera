@@ -25,4 +25,8 @@ const isCurrentPage = (n: number, page: number) => {
 .currentPage {
     color: var(--color-text);
 }
+
+.buttonArea {
+    text-align: center;
+}
 </style>

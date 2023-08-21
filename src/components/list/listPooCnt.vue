@@ -30,6 +30,8 @@ const defaultData = {
 
 // 返ってきたデータ
 const res: Ref<getPooCntResType> = ref(defaultData)
+// resの中に(defaultデータではない)正常な値が入っているか
+const isDataAvailable = ref(false)
 
 // 最大ページ
 const maxPage = ref(0)
@@ -51,10 +53,19 @@ const getPooCntWork = async () => {
  * NOTE: ページ遷移のたびに同じの読み込むのやだなぁ。どうにかできないかなあ。最悪localhostかなぁ。
  */
 watch(page, async () => {
+    // 更新前にデータを一度空にする
     res.value = defaultData
+    // データをなしに変更
+    isDataAvailable.value = false
+
+    // APIを実行しresへ格納
     await getPooCntWork()
+
     // NOTE: これも共通処理だよね。
+    // 最大ページを更新
     maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
+    // データをありに変更
+    isDataAvailable.value = true
 }, { immediate: true })
 </script>
 <template>
@@ -65,15 +76,17 @@ watch(page, async () => {
                 <th id="count">回数</th>
             </tr>
         </thead>
-        <tbody>
-            <tr v-for="d in res?.data" :key="d.date">
-                <td>{{ d.date }}</td>
-                <td>{{ d.count }}</td>
-            </tr>
-        </tbody>
+        <Transition name="fade">
+            <tbody v-if="isDataAvailable">
+                <tr v-for="d in res?.data" :key="d.date">
+                    <td>{{ d.date }}</td>
+                    <td>{{ d.count }}</td>
+                </tr>
+            </tbody>
+        </Transition>
     </table>
 
-    <PageNationButton :page="page" :max-page="maxPage" @updateCurrentPage="(newPage) => {updateCurrentPage(newPage)}"/>
+    <PageNationButton :page="page" :max-page="maxPage" @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
 </template>
 
 <style scoped>
@@ -87,12 +100,11 @@ table tr {
     height: 2.5em;
 }
 
-.buttonArea {
-    text-align: center;
-}
-
 /* セルの個別設定 */
 #date {
     width: 30%;
 }
 </style>
+
+<!-- TransitionのCSSを読み込み -->
+<style src="@/assets/v-transition.css" scoped></style>
