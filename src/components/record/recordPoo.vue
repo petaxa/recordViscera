@@ -50,3 +50,5 @@ const submit = async () => {
     </div>
     <button class="submitBtn" @click="submit" :disabled="!isEnabled">登録</button>
 </template>
+
+<style src="@/assets/list.css" scoped></style>
