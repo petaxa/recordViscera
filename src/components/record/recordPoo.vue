@@ -14,16 +14,16 @@ const notes = ref('')
 // ボタンが活性化しているかどうか
 const isEnabled = ref(true)
 
-const submit = async() => {
+const submit = async () => {
     // 連打防止のためにボタンを非活性
     isEnabled.value = false
 
     // APIを実行
     const today = new Date()
-    const res  = await sendPoo(today, poo.value, blood.value, drainage.value, notes.value)
+    const res = await sendPoo(today, poo.value, blood.value, drainage.value, notes.value)
 
     // 結果をアラート
-    // ※もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。
+    // NOTE: もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。
     alert(JSON.stringify(res))
     // ボタンを活性化
     isEnabled.value = true

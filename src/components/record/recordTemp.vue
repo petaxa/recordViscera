@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { sendTemp } from '@/lib/sheetapi'
 
 // 体温
-// ※ここの型、要検討。Ref<number>だと初期値が必要、それ以外は整合性がぱっとみ取れなさそう。
+// NOTE: ここの型、要検討。Ref<number>だと初期値が必要、それ以外は整合性がぱっとみ取れなさそう。
 const temp = ref()
 
 // ボタンが活性化しているかどうか
@@ -19,7 +19,7 @@ const submit = async() => {
     const res = await sendTemp(today, temp.value)
 
     // 結果をアラート
-    // ※もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。
+    // NOTE: もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。
     alert(JSON.stringify(res))
     // ボタンを活性化
     isEnabled.value = true
