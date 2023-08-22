@@ -51,6 +51,7 @@ const formatDate = (date: Date): string => {
 
 // getもpostもメッセージの出るタイミングがゴミだから修正したい。
 const post = (json: string) => {
+    // NOTE: rejectをどう使うかよく調べないといけない。
     const promise:Promise<getResType> = new Promise((resolve, reject) => {
         //データを送信
         const xhr = new XMLHttpRequest()       //インスタンス作成
@@ -104,6 +105,7 @@ export interface getPooCntResType extends getResType {
 }
 
 const sendGetRequest = (json: getParamType) => {
+    // NOTE: rejectをどう使うかよく調べないといけない。
     const promise: Promise<getResType> = new Promise((resolve, reject) => {
         //データを送信
         const xhr = new XMLHttpRequest()       //インスタンス作成
