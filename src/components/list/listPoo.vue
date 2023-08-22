@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getPoo } from '@/lib/sheetapi'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import type { Ref } from 'vue'
 import type { getPooResType } from '@/lib/sheetapi'
 import PageNationButton from './pageNationButton.vue'
@@ -40,15 +40,40 @@ const isDataAvailable = ref(false)
 const maxPage = ref(0)
 
 /**
- * スプレッドシートからのデータ取得、resに格納
+ * スプレッドシートからのデータ取得、resに格納、フラグ, ページの更新 を行う
  * pageを監視しているwatch内で使う
+ * resの中身をデフォルトに → データ有無フラグ変更 → API実行, resに格納 → 最大ページ, データ有無フラグを変更
  * NOTE: ちょっとさすがに関数名を改善したい
  */
 const getPooWork = async () => {
+    // 更新前にデータを一度空にする
+    res.value = defaultData
+    // データをなしに変更
+    isDataAvailable.value = false
+
+    // APIを実行
     const r = await getPoo(page.value, COUNT)
+    // resに格納
     res.value = r;
-    console.log(r)
+
+    // NOTE: これも共通処理だよね。
+    // 最大ページを更新
+    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
+
+    // データをありに変更
+    isDataAvailable.value = true
 }
+
+/**
+ * 最初にロードされたときの処理
+ */
+onMounted(async () => {
+    // データを更新
+    await getPooWork()
+
+    // 現在ページを最大ページに変更
+    page.value = maxPage.value
+})
 
 /**
  * pageを監視してデータを取得
@@ -56,20 +81,9 @@ const getPooWork = async () => {
  * NOTE: そもそも、ページ遷移のたびに表示する要素を読み込むという思想自体がダメなのでは。API側で機能追加して、新しく追加されたかだけを返してくれるようなものを作るべきでは。その時だけ受信のAPIを投げる。
  */
 watch(page, async () => {
-    // 更新前にデータを一度空にする
-    res.value = defaultData
-    // データをなしに変更
-    isDataAvailable.value = false
-
-    // APIを実行しresへ格納
+    // データを更新
     await getPooWork()
-
-    // NOTE: これも共通処理だよね。
-    // 最大ページを更新
-    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
-    // データをありに変更
-    isDataAvailable.value = true
-}, { immediate: true })
+})
 </script>
 <template>
     <table>
@@ -85,17 +99,18 @@ watch(page, async () => {
         <Transition name="fade">
             <tbody v-if="isDataAvailable">
                 <tr v-for="d in res?.data" :key="d.date">
-                <td>{{ d.date }}</td>
-                <td>{{ d.poo }}</td>
-                <td>{{ d.blood }}</td>
-                <td>{{ d.drainage }}</td>
-                <td>{{ d.notes }}</td>
+                    <td>{{ d.date }}</td>
+                    <td>{{ d.poo }}</td>
+                    <td>{{ d.blood }}</td>
+                    <td>{{ d.drainage }}</td>
+                    <td>{{ d.notes }}</td>
                 </tr>
             </tbody>
         </Transition>
     </table>
 
-    <PageNationButton :page="page" :max-page="maxPage" :isDataAvailable="isDataAvailable" @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
+    <PageNationButton :page="page" :max-page="maxPage" :isDataAvailable="isDataAvailable"
+        @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
 </template>
 
 <style scoped>
