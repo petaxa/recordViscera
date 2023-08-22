@@ -10,7 +10,7 @@ const temp = ref()
 // ボタンが活性化しているかどうか
 const isEnabled = ref(true)
 
-const submit = async() => {
+const submit = async () => {
     // 連打防止のためにボタンを非活性
     isEnabled.value = false
 
@@ -27,11 +27,13 @@ const submit = async() => {
 </script>
 
 <template>
-    <div class="inputForm">
-        <label for="temp">体温</label>
-        <input type="number" name="temp" v-model="temp">
-    </div>
-    <button class="submitBtn" @click="submit" :disabled="!isEnabled">登録</button>
+    <form @submit.prevent="submit">
+        <div class="inputForm">
+            <label for="temp">体温</label>
+            <input type="number" name="temp" v-model="temp" required />
+        </div>
+        <input type="submit" class="submitBtn" :disabled="!isEnabled" value="登録" />
+    </form>
 </template>
 
 <style src="@/assets/list.css" scoped></style>

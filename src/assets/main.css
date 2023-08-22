@@ -15,14 +15,14 @@ a,
   transition: 0.4s;
 }
 
-button {
+button, input[type=submit] {
   background-color: var(--color-background);
   border-radius: 5px;
   border-color: var(--color-border);
   color: var(--main-color);
 }
 
-button:disabled {
+button:disabled,  input[type=submit]:disabled {
   color: var(--color-border);
 }
 

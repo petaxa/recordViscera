@@ -1,17 +1,62 @@
-export const sendTemp = async(date: Date, temp: number) => {
+// TODO: コメント少なすぎ。忘れないうちに書いてくれ。
+
+// NOTE: GAS側のレスポンスメッセージの仕様に合わせる。
+type postResType = {
+    'message': string
+}
+
+type postBodyTypeTemp = {
+    "type": "temp",
+    "data": {
+        "date": string,
+        "temp": number
+    }[]
+}
+
+export const sendTemp = async (date: Date, temp: number) => {
     const formatedDate = formatDate(date)
 
+    // tempに値が入っているかを確認
+    if (!temp) {
+        // NOTE: GAS側のレスポンスメッセージの仕様に合わせる。
+        const res: postResType = { 'message': 'temp is required' }
+        return res
+    }
+    // tempが50以内かどうかの確認
+    if(temp > 50) {
+        const res: postResType = {'message': 'temp must be under 50'}
+        return res
+    }
+
     // 送信処理を行う。
-    const json = JSON.stringify({ "type": "temp", "data": [{ "date": formatedDate, "temp": temp }] })
+    const json: postBodyTypeTemp = { "type": "temp", "data": [{ "date": formatedDate, "temp": temp }] }
     const res = await post(json)
     return res
 }
 
-export const sendPoo = async(date: Date, poo: string, blood: string, drainage: string, notes: string) => {
+type postBodyTypePoo = {
+    "type": "poo",
+    "data": {
+        "date": string,
+        "poo": string,
+        blood: string,
+        drainage: string,
+        notes: string
+    }[]
+}
+
+export const sendPoo = async (date: Date, poo: string, blood: string, drainage: string, notes: string) => {
     const formatedDate = formatDate(date)
 
+    // pooに値が入っているかを確認
+    if (!poo) {
+        // NOTE: GAS側のレスポンスメッセージの仕様に合わせる。
+        const res: postResType = { 'message': 'poo is required' }
+        return res
+    }
+
     // 送信処理を行う。
-    const json = JSON.stringify({ "type": "poo", "data": [{ "date": formatedDate, "poo": poo, "blood": blood, "drainage": drainage, "notes": notes }] })
+    const json: postBodyTypePoo = { "type": "poo", "data": [{ "date": formatedDate, "poo": poo, "blood": blood, "drainage": drainage, "notes": notes }] }
     const res = await post(json)
     return res
 }
@@ -50,9 +95,11 @@ const formatDate = (date: Date): string => {
 }
 
 // getもpostもメッセージの出るタイミングがゴミだから修正したい。
-const post = (json: string) => {
+const post = (json: postBodyTypeTemp | postBodyTypePoo) => {
+    const stringifyJson = JSON.stringify(json)
+
     // NOTE: rejectをどう使うかよく調べないといけない。
-    const promise:Promise<getResType> = new Promise((resolve, reject) => {
+    const promise: Promise<postResType> = new Promise((resolve, reject) => {
         //データを送信
         const xhr = new XMLHttpRequest()       //インスタンス作成
         xhr.onload = function () {        //レスポンスを受け取った時の処理（非同期）
@@ -64,7 +111,7 @@ const post = (json: string) => {
         }
         xhr.open('post', import.meta.env.VITE_API_URL, true)
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-        xhr.send(json)    //送信実行
+        xhr.send(stringifyJson)    //送信実行
     })
     return promise
 }

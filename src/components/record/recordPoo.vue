@@ -32,23 +32,25 @@ const submit = async () => {
 </script>
 
 <template>
-    <div class="inputForm">
-        <label for="poo">便の状態</label>
-        <input type="text" name="poo" v-model="poo">
-    </div>
-    <div class="inputForm">
-        <label for="blood">血の有無</label>
-        <input type="text" name="blood" v-model="blood">
-    </div>
-    <div class="inputForm">
-        <label for="drainage">粘液の有無</label>
-        <input type="text" name="drainage" v-model="drainage">
-    </div>
-    <div class="inputForm">
-        <label for="notes">備考</label>
-        <input type="text" name="notes" v-model="notes">
-    </div>
-    <button class="submitBtn" @click="submit" :disabled="!isEnabled">登録</button>
+    <form @submit.prevent="submit">
+        <div class="inputForm">
+            <label for="poo">便の状態</label>
+            <input type="text" name="poo" v-model="poo" required />
+        </div>
+        <div class="inputForm">
+            <label for="blood">血の有無</label>
+            <input type="text" name="blood" v-model="blood" />
+        </div>
+        <div class="inputForm">
+            <label for="drainage">粘液の有無</label>
+            <input type="text" name="drainage" v-model="drainage" />
+        </div>
+        <div class="inputForm">
+            <label for="notes">備考</label>
+            <input type="text" name="notes" v-model="notes" />
+        </div>
+        <input type="submit" class="submitBtn" :disabled="!isEnabled" value="登録" />
+    </form>
 </template>
 
 <style src="@/assets/list.css" scoped></style>
