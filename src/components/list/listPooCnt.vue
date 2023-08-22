@@ -51,6 +51,7 @@ const getPooCntWork = async () => {
 /**
  * pageを監視してデータを取得
  * NOTE: ページ遷移のたびに同じの読み込むのやだなぁ。どうにかできないかなあ。最悪localhostかなぁ。
+ * NOTE: そもそも、ページ遷移のたびに表示する要素を読み込むという思想自体がダメなのでは。API側で機能追加して、新しく追加されたかだけを返してくれるようなものを作るべきでは。その時だけ受信のAPIを投げる。
  */
 watch(page, async () => {
     // 更新前にデータを一度空にする
@@ -86,7 +87,7 @@ watch(page, async () => {
         </Transition>
     </table>
 
-    <PageNationButton :page="page" :max-page="maxPage" @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
+    <PageNationButton :page="page" :max-page="maxPage" :isDataAvailable="isDataAvailable" @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
 </template>
 
 <style scoped>
