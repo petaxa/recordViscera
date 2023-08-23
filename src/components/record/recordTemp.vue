@@ -30,7 +30,7 @@ const submit = async () => {
     <form @submit.prevent="submit">
         <div class="inputForm">
             <label for="temp">体温</label>
-            <input type="number" name="temp" v-model="temp" required />
+            <input type="number" step="0.1" name="temp" v-model="temp" required />
         </div>
         <input type="submit" class="submitBtn" :disabled="!isEnabled" value="登録" />
     </form>
