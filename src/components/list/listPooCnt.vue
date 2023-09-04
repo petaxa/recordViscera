@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { getPooCnt } from '@/lib/sheetapi'
 import { ref, watch, onMounted } from 'vue'
 import type { Ref } from 'vue'
-import type { getPooCntResType } from '@/lib/sheetapi'
 import PageNationButton from './pageNationButton.vue'
+import { countBowelMovementsPerDay, type BowelMovementCountGetResType } from '@/lib/API/bowelMovements';
 
 // 1ページのデータ表示数
 const COUNT = 20;
@@ -19,17 +18,15 @@ const updateCurrentPage = (newPage: number) => {
 
 // default data
 const defaultData = {
-    "page": "",
-    "count": "",
-    "allCount": "",
-    "data": [{
-        "date": "",
-        "count": ""
-    }]
+    status: false,
+    message: "",
+    allCount: 0,
+    count: 0,
+    data: []
 }
 
 // 返ってきたデータ
-const res: Ref<getPooCntResType> = ref(defaultData)
+const res: Ref<BowelMovementCountGetResType> = ref(defaultData)
 // resの中に(defaultデータではない)正常な値が入っているか
 const isDataAvailable = ref(false)
 
@@ -49,13 +46,13 @@ const maxPage = ref(0)
     isDataAvailable.value = false
 
     // APIを実行
-    const r = await getPooCnt(page.value, COUNT)
+    const r = await countBowelMovementsPerDay(page.value, COUNT)
     // resに格納
     res.value = r;
 
     // NOTE: これも共通処理だよね。
     // 最大ページを更新
-    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
+    maxPage.value = res.value.count !== 0 ? Math.ceil(Number(res.value.allCount) / Number(res.value.count)) : 1
 
     // データをありに変更
     isDataAvailable.value = true
@@ -81,6 +78,14 @@ watch(page, async () => {
     // データを更新
     await getPooCntWork()
 })
+
+/**
+ * レスポンスのdayから表示形式にフォーマット
+ * @param day ISO 8601形式の文字列
+ */
+const formatDayFromDate = (day: string) => {
+    return day.slice(0, 10)
+}
 </script>
 <template>
     <table>
@@ -92,9 +97,9 @@ watch(page, async () => {
         </thead>
         <Transition name="fade">
             <tbody v-if="isDataAvailable">
-                <tr v-for="d in res?.data" :key="d.date">
-                    <td>{{ d.date }}</td>
-                    <td>{{ d.count }}</td>
+                <tr v-for="(d, i) in res?.data" :key="i">
+                    <td>{{ formatDayFromDate(d.day) }}</td>
+                    <td>{{ d._count._all }}</td>
                 </tr>
             </tbody>
         </Transition>

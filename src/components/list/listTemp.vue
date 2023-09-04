@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { getTemp } from '@/lib/sheetapi'
+import { readTemp, type TempGetResType } from '@/lib/API/temps'
+import { formatDateStrFromDayTime } from '@/lib/API/index'
 import { ref, watch, onMounted } from 'vue'
 import type { Ref } from 'vue'
-import type { getTempResType } from '@/lib/sheetapi'
 import PageNationButton from './pageNationButton.vue'
 
 // 1ページのデータ表示数
@@ -14,22 +14,32 @@ const page = ref(1)
  * ページを更新
  */
 const updateCurrentPage = (newPage: number) => {
+    console.log(`newPage: ${newPage}`)
     page.value = newPage
 }
 
 // default data
 const defaultData = {
-    "page": "",
-    "count": "",
-    "allCount": "",
-    "data": [{
-        "date": "",
-        "temp": ""
-    }]
+    status: false,
+    message: "",
+    allCount: 0,
+    count: 0,
+    sort: "",
+    fields: "",
+    limit: "",
+    offset: "",
+    filter: {
+        id: "",
+        date: "",
+        temp: "",
+        createdAt: "",
+        updatedAt: ""
+    },
+    temps: []
 }
 
 // 返ってきたデータ
-const res: Ref<getTempResType> = ref(defaultData)
+const res: Ref<TempGetResType> = ref(defaultData)
 // resの中に(defaultデータではない)正常な値が入っているか
 const isDataAvailable = ref(false)
 
@@ -42,20 +52,21 @@ const maxPage = ref(0)
  * resの中身をデフォルトに → データ有無フラグ変更 → API実行, resに格納 → 最大ページ, データ有無フラグを変更
  * NOTE: ちょっとさすがに関数名を改善したい
  */
- const getTempWork = async () => {
+const getTempWork = async () => {
     // 更新前にデータを一度空にする
     res.value = defaultData
     // データをなしに変更
     isDataAvailable.value = false
 
     // APIを実行
-    const r = await getTemp(page.value, COUNT)
+    const r = await readTemp(page.value, COUNT)
+    console.log(r)
     // resに格納
     res.value = r;
 
     // NOTE: これも共通処理だよね。
     // 最大ページを更新
-    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
+    maxPage.value = res.value.count !== 0 ? Math.ceil(Number(res.value.allCount) / Number(res.value.count)) : 1
 
     // データをありに変更
     isDataAvailable.value = true
@@ -92,15 +103,16 @@ watch(page, async () => {
         </thead>
         <Transition name="fade">
             <tbody v-if="isDataAvailable">
-                <tr v-for="d in res?.data" :key="d.date">
-                    <td>{{ d.date }}</td>
+                <tr v-for="(d, i) in res?.temps" :key="i">
+                    <td>{{ formatDateStrFromDayTime(d.day, d.time) }}</td>
                     <td>{{ d.temp }}</td>
                 </tr>
             </tbody>
         </Transition>
     </table>
 
-    <PageNationButton :page="page" :max-page="maxPage" :isDataAvailable="isDataAvailable" @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
+    <PageNationButton :page="page" :max-page="maxPage" :isDataAvailable="isDataAvailable"
+        @updateCurrentPage="(newPage) => { updateCurrentPage(newPage) }" />
 </template>
 
 <style scoped>

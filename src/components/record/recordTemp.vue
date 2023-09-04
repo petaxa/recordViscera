@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 // import type { Ref } from 'vue'
-import { sendTemp } from '@/lib/sheetapi'
+import { registTemp } from '@/lib/API/temps'
 
 // 体温
 // NOTE: ここの型、要検討。Ref<number>だと初期値が必要、それ以外は整合性がぱっとみ取れなさそう。
@@ -16,7 +16,7 @@ const submit = async () => {
 
     // APIを実行
     const today = new Date()
-    const res = await sendTemp(today, temp.value)
+    const res = await registTemp(today, temp.value)
 
     // 結果をアラート
     // NOTE: もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。

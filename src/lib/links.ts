@@ -3,13 +3,13 @@ export type LinksType = {
     path: string,
     text: string
 }
-
+// NOTE: これがrouter/index.tsとリンクしないのやばいかも？オブジェクトで同期はさせられないけど、pathのおおもとは同じがいい気がする。
 /**
  * 入力時のヘッダーリンク情報
  */
 export const linksWhenInput: LinksType[] = [
     {
-        path: '/',
+        path: '/temp',
         text: '体温'
     },
     {
@@ -27,7 +27,7 @@ export const linksWhenInput: LinksType[] = [
  */
 export const linksWhenList: LinksType[] = [
     {
-        path: '/',
+        path: '/temp',
         text: '←入力'
     },
     {

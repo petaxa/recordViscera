@@ -1,5 +1,4 @@
-// TODO: コメント少なすぎ。忘れないうちに書いてくれ。
-
+// NOTE: スプレッドシートへの書き込み。廃止されている。
 // NOTE: GAS側のレスポンスメッセージの仕様に合わせる。
 type postResType = {
     'message': string
@@ -23,8 +22,8 @@ export const sendTemp = async (date: Date, temp: number) => {
         return res
     }
     // tempが50以内かどうかの確認
-    if(temp > 50) {
-        const res: postResType = {'message': 'temp must be under 50'}
+    if (temp > 50) {
+        const res: postResType = { 'message': 'temp must be under 50' }
         return res
     }
 
@@ -94,7 +93,7 @@ const formatDate = (date: Date): string => {
     return `${YYYY}-${MM}-${DD} ${HH}:${mm}`
 }
 
-// getもpostもメッセージの出るタイミングがゴミだから修正したい。
+// TODO: getもpostもメッセージの出るタイミングがゴミだから修正したい。
 const post = (json: postBodyTypeTemp | postBodyTypePoo) => {
     const stringifyJson = JSON.stringify(json)
 
@@ -109,7 +108,7 @@ const post = (json: postBodyTypeTemp | postBodyTypePoo) => {
         xhr.onerror = function () {       //エラーが起きた時の処理（非同期）
             console.log("error!")
         }
-        xhr.open('post', import.meta.env.VITE_API_URL, true)
+        xhr.open('post', import.meta.env.VITE_API_URL_SPREAD_SHEET, true)
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
         xhr.send(stringifyJson)    //送信実行
     })
@@ -163,7 +162,7 @@ const sendGetRequest = (json: getParamType) => {
         xhr.onerror = function () {       //エラーが起きた時の処理（非同期）
             console.log("error!")
         }
-        xhr.open('get', `${import.meta.env.VITE_API_URL}?type=${json.type}&page=${json.page}&count=${json.count}`, true)
+        xhr.open('get', `${import.meta.env.VITE_API_URL_SPREAD_SHEET}?type=${json.type}&page=${json.page}&count=${json.count}`, true)
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
         xhr.send()    //送信実行
     })

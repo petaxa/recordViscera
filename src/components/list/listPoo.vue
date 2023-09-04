@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { getPoo } from '@/lib/sheetapi'
 import { ref, watch, onMounted } from 'vue'
 import type { Ref } from 'vue'
-import type { getPooResType } from '@/lib/sheetapi'
 import PageNationButton from './pageNationButton.vue'
+import { readBowelMovement, type BowelMovementGetResType } from '@/lib/API/bowelMovements'
+import { formatDateStrFromDayTime } from '@/lib/API/index'
 
 // 1ページのデータ表示数
 const COUNT = 20;
@@ -19,20 +19,29 @@ const updateCurrentPage = (newPage: number) => {
 
 // default data
 const defaultData = {
-    "page": "",
-    "count": "",
-    "allCount": "",
-    "data": [{
-        "date": "",
-        "poo": "",
-        "blood": "",
-        "drainage": "",
-        "notes": "",
-    }]
+    status: false,
+    message: "",
+    allCount: 0,
+    count: 0,
+    sort: "",
+    fields: "",
+    limit: "",
+    offset: "",
+    filter: {
+        id: "",
+        date: "",
+        blood: "",
+        drainage: "",
+        note: "",
+        scaleId: "",
+        createdAt: "",
+        updatedAt: "",
+    },
+    bowelMovements:[]
 }
 
 // 返ってきたデータ
-const res: Ref<getPooResType> = ref(defaultData)
+const res: Ref<BowelMovementGetResType> = ref(defaultData)
 // resの中に(defaultデータではない)正常な値が入っているか
 const isDataAvailable = ref(false)
 
@@ -52,13 +61,13 @@ const getPooWork = async () => {
     isDataAvailable.value = false
 
     // APIを実行
-    const r = await getPoo(page.value, COUNT)
+    const r = await readBowelMovement(page.value, COUNT)
     // resに格納
     res.value = r;
 
     // NOTE: これも共通処理だよね。
     // 最大ページを更新
-    maxPage.value = Math.ceil(Number(res.value.allCount) / Number(res.value.count))
+    maxPage.value = res.value.count !== 0 ? Math.ceil(Number(res.value.allCount) / Number(res.value.count)) : 1
 
     // データをありに変更
     isDataAvailable.value = true
@@ -98,12 +107,12 @@ watch(page, async () => {
         </thead>
         <Transition name="fade">
             <tbody v-if="isDataAvailable">
-                <tr v-for="d in res?.data" :key="d.date">
-                    <td>{{ d.date }}</td>
-                    <td>{{ d.poo }}</td>
+                <tr v-for="(d, i) in res?.bowelMovements" :key="i">
+                    <td>{{ formatDateStrFromDayTime(d.day, d.time) }}</td>
+                    <td>{{ d.scaleId }}</td>
                     <td>{{ d.blood }}</td>
                     <td>{{ d.drainage }}</td>
-                    <td>{{ d.notes }}</td>
+                    <td>{{ d.note }}</td>
                 </tr>
             </tbody>
         </Transition>

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { sendPoo } from '@/lib/sheetapi'
+import { registBowelMovement } from '@/lib/API/bowelMovements'
 
 // 便の状態
-const poo = ref('')
+const poo = ref()
 // 血の有無
-const blood = ref('')
+const blood = ref()
 // 粘液の有無
-const drainage = ref('')
+const drainage = ref()
 // 備考
 const notes = ref('')
 
@@ -20,7 +20,7 @@ const submit = async () => {
 
     // APIを実行
     const today = new Date()
-    const res = await sendPoo(today, poo.value, blood.value, drainage.value, notes.value)
+    const res = await registBowelMovement(today, Number(poo.value), Number(blood.value), Number(drainage.value), notes.value)
 
     // 結果をアラート
     // NOTE: もうちょいどうにかしたいけど、iOS版Chromeのアラートの質に勝てないならこのままが丸そう。
@@ -35,15 +35,30 @@ const submit = async () => {
     <form @submit.prevent="submit">
         <div class="inputForm">
             <label for="poo">便の状態</label>
-            <input type="text" name="poo" v-model="poo" required />
+            <select class="inputForm" name="poo" v-model="poo">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
         </div>
+        <!-- NOTE: ラジオボタンのがいいかも。デザインリファクタリングの時に見直す。 -->
         <div class="inputForm">
             <label for="blood">血の有無</label>
-            <input type="text" name="blood" v-model="blood" />
+            <select class="inputForm" name="blood" v-model="blood">
+                <option value="1">あり</option>
+                <option value="0">なし</option>
+            </select>
         </div>
         <div class="inputForm">
             <label for="drainage">粘液の有無</label>
-            <input type="text" name="drainage" v-model="drainage" />
+            <select class="inputForm" name="drainage" v-model="drainage">
+                <option value="1">あり</option>
+                <option value="0">なし</option>
+            </select>
         </div>
         <div class="inputForm">
             <label for="notes">備考</label>
